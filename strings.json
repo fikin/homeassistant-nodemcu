@@ -1,0 +1,29 @@
+{
+  "config": {
+    "flow_title": "Device {host}",
+    "step": {
+      "user": {
+        "title": "Integrate device",
+        "description": "Enter device URI",
+        "data": {
+          "uri": "URI",
+          "period": "Seconds"
+        },
+        "data_description": {
+          "uri": "API access uri",
+          "period": "Device polling period"
+        }
+      },
+      "confirm": {
+        "description": "Do you want to setup {host}?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to device",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}

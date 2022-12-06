@@ -1,0 +1,18 @@
+{
+  "domain": "nodemcu",
+  "name": "NodeMCU",
+  "version": "1.0.0",
+  "documentation": "https://www.home-assistant.io/integrations/nodemcu",
+  "requirements": [],
+  "dependencies": [
+    "network"
+  ],
+  "codeowners": [
+    "@fikin"
+  ],
+  "iot_class": "local_polling",
+  "loggers": [
+    "nodemcu"
+  ],
+  "config_flow": true
+}
