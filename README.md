@@ -32,7 +32,7 @@ NodeMCU API is essentially a generic HomeAssistant device spec, not linked to an
 
 It is plain HTTP(S) using Json as payload. Authentication is optional, for the moment based on HTTP Basic scheme.
 
-I've designed it for integrating [NodeMCU](https://nodemcu.readthedocs.io/en/release/) devices to HomeAssistant in a flexible manner (in programming terms). One actual device implementation is located [here TODO](#TODO).
+I've designed it for integrating [NodeMCU](https://nodemcu.readthedocs.io/en/release/) devices to HomeAssistant in a flexible manner (in programming terms). One actual device implementation is [NodeMCU-device](https://github.com/fikin/nodemcu-device).
 
 The API is oriented towards HomeAssistant data model which makes modelling entities relatively straight forward.
 
