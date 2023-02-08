@@ -7,6 +7,9 @@
   "dependencies": [
     "network"
   ],
+  "zeroconf": [
+    { "type": "_http._tcp.local.", "properties": { "api": "NodeMCU-Device", "path": "*" } }
+  ],
   "codeowners": [
     "@fikin"
   ],
