@@ -35,9 +35,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain="nodemcu"):
     async def async_step_zeroconf(
             self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
         """Handle zeroconf discovery."""
-        apiProp = discovery_info.properties["api"]
-        pathProp = discovery_info.properties["path"]
-        if apiProp != "NodemCU-Device" or not bool(pathProp.strip()):
+        pathProp = str(discovery_info.properties["path"])
+        if not bool(pathProp.strip()):
             return self.async_abort(reason="not_a_nodemcu_device")
 
         uri = 'http://username:password@' + discovery_info.host + ':' + discovery_info.port + pathProp
