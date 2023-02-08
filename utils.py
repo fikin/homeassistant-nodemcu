@@ -179,3 +179,4 @@ def deepDict(key: str, lastValue: Any) -> Dict[str, Any]:
 async def send_state(e: NMBaseEntity, payload: Dict[str, Any]) -> None:
     """Updates the state of the device"""
     await update_device_data(e.coordinator.conn, deepDict(e.entity_description.key, payload))
+    await e.coordinator.async_request_refresh()

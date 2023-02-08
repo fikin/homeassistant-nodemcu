@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 import voluptuous as vol  # type: ignore
 
+from homeassistant.components import zeroconf
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
@@ -21,12 +22,30 @@ class ConfigFlow(config_entries.ConfigFlow, domain="nodemcu"):
 
     VERSION = 1
 
-    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
+    async def async_step_user(self,
+                              user_input: dict[str, Any] | None = None
+                              ) -> FlowResult:
         """Handle the initial step."""
-        errors = {}
-
         if user_input is not None:
-            return await self.create_entry_from_uri(user_input[CONF_URI], user_input[CONF_PERIOD])
+            return await self.create_entry_from_uri(user_input[CONF_URI],
+                                                    user_input[CONF_PERIOD])
+        else:
+            return self.do_show_form("http://username:password@host:80/api")
+
+    async def async_step_zeroconf(
+            self, discovery_info: zeroconf.ZeroconfServiceInfo) -> FlowResult:
+        """Handle zeroconf discovery."""
+        apiProp = discovery_info.properties["api"]
+        pathProp = discovery_info.properties["path"]
+        if apiProp != "NodemCU-Device" or not bool(pathProp.strip()):
+            return self.async_abort(reason="not_a_nodemcu_device")
+
+        uri = 'http://username:password@' + discovery_info.host + ':' + discovery_info.port + pathProp
+        return self.do_show_form(uri)
+
+    async def do_show_form(self, uri: str) -> FlowResult:
+        """Show the form with given uri as default value"""
+        errors = {}
 
         return self.async_show_form(  # type: ignore
             step_id="user",
@@ -36,7 +55,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain="nodemcu"):
                         CONF_URI,
                         description={
                             "suggested_value":
-                            "http://username:password@host:80/api"
+                            uri
                         }):
                     str,
                     vol.Optional(CONF_PERIOD,default=300): int # type: ignore
@@ -45,12 +64,13 @@ class ConfigFlow(config_entries.ConfigFlow, domain="nodemcu"):
         )
 
     @callback
-    async def create_entry_from_uri(self, uri: str, updatePeriodSec: int) -> FlowResult:
+    async def create_entry_from_uri(self, uri: str,
+                                    updatePeriodSec: int) -> FlowResult:
         """Create a config entry from NodeMCU device."""
 
         self._async_abort_entries_match({CONF_URI: uri})
 
-        hostname: str = str(urlparse(uri).hostname)
+        hostname = str(urlparse(uri).hostname)
         await self.async_set_unique_id(hostname, raise_on_progress=False)
         self._abort_if_unique_id_configured(updates={CONF_URI: uri})
 

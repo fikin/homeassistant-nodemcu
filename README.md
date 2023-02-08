@@ -458,7 +458,7 @@ There is `test_web.py` which hosts `test_data.py` under `http://localhost:8080/a
 
 It behaves same way as built-in internal `stub` hostname but it is responding over the net and prints all POST payloads in the terminal.
 
-Start the server in one terminal (`python3 test_web`) and integrate device to HomeAssistant.
+Start the server in one terminal (`python3 test_web`) and integrate device to HomeAssistant using above url.
 
 This server can be used as boilerplate for other device implementations too.
 
