@@ -8,7 +8,7 @@
     "network"
   ],
   "zeroconf": [
-    { "type": "_http._tcp.local.", "properties": { "api": "NodeMCU-Device", "path": "*" } }
+    { "type": "_nodemcu-ha._tcp.local.", "properties": { "path": "*" } }
   ],
   "codeowners": [
     "@fikin"

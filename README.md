@@ -22,7 +22,7 @@
 
 This repository is HomeAssistant platform for integration of NodeMCU devices.
 
-NodeMCU devices are essentially Rest endpoints, implementing the generic API explained below. **Any** REST service implementing this API would be integrated by this platform.
+NodeMCU devices are essentially REST endpoints, implementing the generic API explained below. **Any** REST service implementing this API would be integrated by this platform.
 
 The integration will connect to the endpoint and create all specified HomeAssistant entities. Then it would periodically poll it for data updates.
 
@@ -32,13 +32,13 @@ NodeMCU API is essentially a generic HomeAssistant device spec, not linked to an
 
 It is plain HTTP(S) using Json as payload. Authentication is optional, for the moment based on HTTP Basic scheme.
 
-I've designed it for integrating [NodeMCU](https://nodemcu.readthedocs.io/en/release/) devices to HomeAssistant in a flexible manner (in programming terms). One actual device implementation is [NodeMCU-device](https://github.com/fikin/nodemcu-device).
+I've designed it for integrating [NodeMCU Devices](https://github.com/fikin/nodemcu-device) devices to HomeAssistant, but it is not limited to.
 
-The API is oriented towards HomeAssistant data model which makes modelling entities relatively straight forward.
+The API payloads model is oriented towards actual HomeAssistant entity specific `DeviceInfo/Spec/Data` data models, which makes modelling new entity types relatively straight forward activity.
 
-The interaction API is oriented towards periodic data poll and occasional post of data changes (delta data).
+The interaction API is oriented towards periodic data poll (GET) and POST whenever data is being changed in HASS (payload is delta data).
 
-The device is defining which entities it supports. And the integration platform is simply creating actual HomeAssistant device and entities. At the moment supported entity types are:
+The actual device is defining which entities it supports. And the integration platform is simply creating actual HomeAssistant device and entities. At the moment supported entity types are:
 
 - [binary-sensor](https://developers.home-assistant.io/docs/core/entity/binary-sensor)
 - [button](https://developers.home-assistant.io/docs/core/entity/button)
@@ -46,6 +46,8 @@ The device is defining which entities it supports. And the integration platform 
 - [light](https://developers.home-assistant.io/docs/core/entity/light)
 - [sensor](https://developers.home-assistant.io/docs/core/entity/sensor)
 - [switch](https://developers.home-assistant.io/docs/core/entity/switch)
+
+The integration supports `mDNS` (zeroconf) detection of devices which advertise as `_nodemcu-ha._tcp.local`, having property `path` containing the path to device's HTTP endpoint serving HASS integration.
 
 ## HomeAssistant Installation
 
@@ -70,6 +72,8 @@ To integration NodeMCU device:
 - confirm creation of the device
 
 Upon successful integration there would be new device created, named after the `hostname`. And all the entities as defined by the device itself.
+
+If devices advertise via `mDNS`, the device will be suggested in the `Integrations` panel. Once selected for integration, the integration sequence is same as above.
 
 ## NodeMCU API explained
 
