@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -8,13 +8,10 @@ from homeassistant.components.button import (
     ButtonEntityDescription,
 )
 
-from .utils import (
-    DOMAIN,
-    NMDeviceCoordinator,
-    NMBaseEntity,
-    dict_to_obj,
-    send_state,
-)
+from .const import DOMAIN
+from .coordinator import NMDeviceCoordinator
+from .entity import NMBaseEntity, send_state
+from .utils import dict_to_obj
 
 
 class NMEntity(NMBaseEntity, ButtonEntity):  # type: ignore
@@ -24,7 +21,7 @@ class NMEntity(NMBaseEntity, ButtonEntity):  # type: ignore
         await send_state(self, {"action": str(self.device_class)})
 
 
-def _newEntity(hass: HomeAssistant, coordinator: NMDeviceCoordinator, spec: Dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
     desc = dict_to_obj(ButtonEntityDescription(key="TODO"), spec)
     return NMEntity(coordinator, desc)
 
@@ -37,4 +34,9 @@ async def async_setup_entry(
     """Set up sensors."""
     coordinator: NMDeviceCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities([_newEntity(hass, coordinator, s) for s in coordinator.spec.get("button", {})])
+    async_add_entities(
+        [
+            _newEntity(coordinator, s)
+            for s in coordinator.read_device_spec.get("button", {})
+        ]
+    )

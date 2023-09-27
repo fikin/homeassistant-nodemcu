@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -8,14 +8,10 @@ from homeassistant.components.light import (
     LightEntityDescription,
 )
 
-from .utils import (
-    DOMAIN,
-    NMDeviceCoordinator,
-    NMBaseEntity,
-    dict_to_obj,
-    instrument_update,
-    send_state,
-)
+from .const import DOMAIN
+from .coordinator import NMDeviceCoordinator
+from .entity import NMBaseEntity, instrument_update, send_state
+from .utils import dict_to_obj
 
 
 class NMEntity(NMBaseEntity, LightEntity):  # type: ignore
@@ -34,7 +30,7 @@ class NMEntity(NMBaseEntity, LightEntity):  # type: ignore
         await self._setOnOff(True, kwargs)
 
 
-def _newEntity(hass: HomeAssistant, coordinator: NMDeviceCoordinator, spec: Dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
     desc = dict_to_obj(LightEntityDescription(key="TODO"), spec)
     e = NMEntity(coordinator, desc)
     instrument_update(e)
@@ -49,4 +45,9 @@ async def async_setup_entry(
     """Set up sensors."""
     coordinator: NMDeviceCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities([_newEntity(hass, coordinator, s) for s in coordinator.spec.get("light", {})])
+    async_add_entities(
+        [
+            _newEntity(coordinator, s)
+            for s in coordinator.read_device_spec.get("light", {})
+        ]
+    )

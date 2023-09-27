@@ -9,54 +9,62 @@ DummyDeviceInfo: Final = {
 }
 
 DummyDeviceSpec: Final = {
-    "sensor": [{
-        "key": "inA0",
-        "name": "Battery",
-        "device_class": "battery",
-        "native_unit_of_measurement": "%",
-        "state_class": "measurement",
-    }],
-    "binary_sensor": [{
-        "key": "inD2",
-        "name": "Door",
-        "device_class": "door",
-    }],
-    "switch": [{
-        "key": "outD4",
-        "name": "Dryer",
-        "device_class": "switch",
-    }],
-    "climate": [{
-        "key": "thermostat",
-        "name": "Thermostat",
-    }],
-    "light": [{
-        "key": "lightD6",
-        "name": "Living room light",
-    }, {
-        "key": "lightD7",
-        "name": "Door light",
-    }, {
-        "key": "lightD8",
-        "name": "Entrance light",
-    }],
-    "button": [{
-        "key": "button1",
-        "name": "Restart device",
-        "device_class": "restart",
-    }]
+    "sensor": [
+        {
+            "key": "inA0",
+            "name": "Battery",
+            "device_class": "battery",
+            "native_unit_of_measurement": "%",
+            "state_class": "measurement",
+        }
+    ],
+    "binary_sensor": [
+        {
+            "key": "inD2",
+            "name": "Door",
+            "device_class": "door",
+        }
+    ],
+    "switch": [
+        {
+            "key": "outD4",
+            "name": "Dryer",
+            "device_class": "switch",
+        }
+    ],
+    "climate": [
+        {
+            "key": "thermostat",
+            "name": "Thermostat",
+        }
+    ],
+    "light": [
+        {
+            "key": "lightD6",
+            "name": "Living room light",
+        },
+        {
+            "key": "lightD7",
+            "name": "Door light",
+        },
+        {
+            "key": "lightD8",
+            "name": "Entrance light",
+        },
+    ],
+    "button": [
+        {
+            "key": "button1",
+            "name": "Restart device",
+            "device_class": "restart",
+        }
+    ],
 }
 
 DummyDeviceData: Final = {
-    "inA0": {
-        "native_value": 24
-    },
-    "inD2": {
-        "is_on": True
-    },
-    "outD4": {
-        "is_on": True
-    },
+    "inA0": {"native_value": 24},
+    "inD2": {"is_on": True},
+    "outD4": {"is_on": True},
     "thermostat": {
         "temperature_unit": "°C",
         "current_temperature": 17.35,
@@ -69,10 +77,8 @@ DummyDeviceData: Final = {
         "min_temp": 7,
         "max_humidity": 99,
         "min_humidity": 30,
-
         #
         "hvac_mode": "heat",
-
         # HVACAction.COOLING = "cooling"
         # HVACAction.DRYING = "drying"
         # HVACAction.FAN = "fan"
@@ -80,7 +86,6 @@ DummyDeviceData: Final = {
         # HVACAction.IDLE = "idle"
         # HVACAction.OFF = "off"
         "hvac_action": "heating",
-
         # HVACMode.OFF = "off"
         # HVACMode.HEAT = "heat"
         # HVACMode.COOL = "cool"
@@ -89,10 +94,8 @@ DummyDeviceData: Final = {
         # HVACMode.DRY = "dry"
         # HVACMode.FAN_ONLY = "fan_only"
         "hvac_modes": ["off", "heat", "cool", "heat_cool", "auto", "dry"],
-
         #
         "preset_mode": "eco",
-
         # # No preset is active
         # PRESET_NONE = "none"
         # # Device is running an energy-saving mode
@@ -110,7 +113,6 @@ DummyDeviceData: Final = {
         # # Device is reacting to activity (e.g. movement sensors)
         # PRESET_ACTIVITY = "activity"
         "preset_modes": ["none", "eco", "away", "comfort", "home", "sleep"],
-
         #
         "fan_mode": "on",
         # FAN_ON = "on"
@@ -123,8 +125,18 @@ DummyDeviceData: Final = {
         # FAN_MIDDLE = "middle"
         # FAN_FOCUS = "focus"
         # FAN_DIFFUSE = "diffuse"
-        "fan_modes": ["on", "off", "auto", "low", "medium", "high", "top", "middle", "focus", "diffuse"],
-
+        "fan_modes": [
+            "on",
+            "off",
+            "auto",
+            "low",
+            "medium",
+            "high",
+            "top",
+            "middle",
+            "focus",
+            "diffuse",
+        ],
         #
         "swing_mode": "on",
         # SWING_ON = "on"
@@ -133,10 +145,8 @@ DummyDeviceData: Final = {
         # SWING_VERTICAL = "vertical"
         # SWING_HORIZONTAL = "horizontal"
         "swing_modes": ["on", "off", "both", "vertical", "horizontal"],
-
         #
         "is_aux_heat": True,
-
         # SUPPORT_TARGET_TEMPERATURE = 1
         # SUPPORT_TARGET_TEMPERATURE_RANGE = 2
         # SUPPORT_TARGET_HUMIDITY = 4
@@ -148,7 +158,6 @@ DummyDeviceData: Final = {
     },
     "lightD6": {
         "is_on": True,
-
         #
         "brightness": 50,
         "hs_color": [128, 128],
@@ -160,11 +169,9 @@ DummyDeviceData: Final = {
         "rgbw_color": [128, 128, 128, 128],
         "rgbww_color": [128, 128, 128, 128, 128],
         "xy_color": [128, 128],
-
         #
         "effect": "dim",
         "effect_list": ["dim", "blink"],
-
         #
         "color_temp": 267,
         "color_temp_kelvin": 3735,
@@ -180,7 +187,6 @@ DummyDeviceData: Final = {
         # RGBWW = "rgbww"
         # WHITE = "white"  # Must *NOT* be the only supported mode
         "supported_color_modes": ["color_temp", "rgbww", "hs", "xy", "white"],
-
         # EFFECT = 4
         # FLASH = 8
         # TRANSITION = 32
