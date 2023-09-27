@@ -1,5 +1,6 @@
 {
   "domain": "nodemcu",
+  "version": "1.0.1",
   "name": "NodeMCU",
   "codeowners": ["@fikin"],
   "config_flow": true,
