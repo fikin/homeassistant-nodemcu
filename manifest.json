@@ -1,21 +1,12 @@
 {
   "domain": "nodemcu",
   "name": "NodeMCU",
-  "version": "1.0.0",
+  "codeowners": ["@fikin"],
+  "config_flow": true,
+  "dependencies": ["network"],
   "documentation": "https://www.home-assistant.io/integrations/nodemcu",
-  "requirements": [],
-  "dependencies": [
-    "network"
-  ],
-  "zeroconf": [
-    { "type": "_nodemcu-ha._tcp.local.", "properties": { "path": "*" } }
-  ],
-  "codeowners": [
-    "@fikin"
-  ],
   "iot_class": "local_polling",
-  "loggers": [
-    "nodemcu"
-  ],
-  "config_flow": true
+  "requirements": [],
+  "loggers": ["nodemcu"],
+  "zeroconf": [{ "type": "_nodemcu-ha._tcp.local.", "properties": { "path": "*" } }]
 }

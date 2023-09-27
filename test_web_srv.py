@@ -3,7 +3,7 @@
 # Test server, one can start manually and use it to test integrate against test_data.py using http://localhost:8080/api URI.
 
 # Python 3 server example
-from typing import Dict, Any
+from typing import Any
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from http import HTTPStatus
 import json
@@ -15,8 +15,7 @@ serverPort = 8080
 
 
 class MyServer(BaseHTTPRequestHandler):
-
-    def sendJsonObj(self, data: Dict[str, Any]) -> None:
+    def sendJsonObj(self, data: dict[str, Any]) -> None:
         dt = bytes(json.dumps(data), "utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -25,7 +24,7 @@ class MyServer(BaseHTTPRequestHandler):
         self.wfile.write(dt)
 
     def readJsonObj(self):
-        o = self.rfile.read(int(self.headers['Content-Length']))
+        o = self.rfile.read(int(self.headers["Content-Length"]))
         print(o)
 
     def doAny(self):
@@ -46,9 +45,9 @@ class MyServer(BaseHTTPRequestHandler):
         try:
             self.raw_requestline = self.rfile.readline(65537)
             if len(self.raw_requestline) > 65536:
-                self.requestline = ''
-                self.request_version = ''
-                self.command = ''
+                self.requestline = ""
+                self.request_version = ""
+                self.command = ""
                 self.send_error(HTTPStatus.REQUEST_URI_TOO_LONG)
                 return
             if not self.raw_requestline:
@@ -60,7 +59,7 @@ class MyServer(BaseHTTPRequestHandler):
             self.doAny()
             self.wfile.flush()
         except TimeoutError as e:
-            #a read or a write timed out.  Discard this connection
+            # a read or a write timed out.  Discard this connection
             self.log_error("Request timed out: %r", e)
             return
 

@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any
 
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
@@ -13,21 +13,17 @@ from homeassistant.components.climate import (
     ATTR_TARGET_TEMP_STEP,
 )
 
-from .utils import (
-    DOMAIN,
-    NMDeviceCoordinator,
-    NMBaseEntity,
-    dict_to_obj,
-    instrument_update,
-    send_state,
-)
+from .const import DOMAIN
+from .coordinator import NMDeviceCoordinator
+from .entity import NMBaseEntity, instrument_update, send_state
+from .utils import dict_to_obj
 
 
 class NMEntity(NMBaseEntity, ClimateEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
-    async def async_set_temperature(self, **kwargs) -> None:  # type: ignore
-        o: Dict[str, Any] = {}
+    async def async_set_temperature(self, **kwargs: Any) -> None:  # type: ignore
+        o: dict[str, Any] = {}
         if t := kwargs.get(ATTR_TEMPERATURE):  # type: ignore
             o["target_temperature"] = t
         if t := kwargs.get(ATTR_TARGET_TEMP_LOW):  # type: ignore
@@ -66,7 +62,7 @@ class NMEntity(NMBaseEntity, ClimateEntity):  # type: ignore
         await send_state(self, {"turn": False})
 
 
-def _newEntity(hass: HomeAssistant, coordinator: NMDeviceCoordinator, spec: Dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
     desc = dict_to_obj(ClimateEntityDescription(key="TODO"), spec)
     e = NMEntity(coordinator, desc)
     instrument_update(e)
@@ -81,4 +77,9 @@ async def async_setup_entry(
     """Set up sensors."""
     coordinator: NMDeviceCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
-    async_add_entities([_newEntity(hass, coordinator, s) for s in coordinator.spec.get("climate", {})])
+    async_add_entities(
+        [
+            _newEntity(coordinator, s)
+            for s in coordinator.read_device_spec.get("climate", {})
+        ]
+    )
