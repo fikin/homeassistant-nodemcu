@@ -14,7 +14,7 @@ from .entity import NMBaseEntity, instrument_update, send_state
 from .utils import dict_to_obj
 
 
-class NMEntity(NMBaseEntity, LightEntity):  # type: ignore
+class NMEntityLight(NMBaseEntity, LightEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
     async def _setOnOff(self, flg: bool, params: dict[str, Any]):
@@ -30,9 +30,9 @@ class NMEntity(NMBaseEntity, LightEntity):  # type: ignore
         await self._setOnOff(True, kwargs)
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:
     desc = dict_to_obj(LightEntityDescription(key="TODO"), spec)
-    e = NMEntity(coordinator, desc)
+    e = NMEntityLight(coordinator, desc)
     instrument_update(e)
     return e
 

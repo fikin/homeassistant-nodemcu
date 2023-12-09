@@ -46,6 +46,7 @@ The actual device is defining which entities it supports. And the integration pl
 - [light](https://developers.home-assistant.io/docs/core/entity/light)
 - [sensor](https://developers.home-assistant.io/docs/core/entity/sensor)
 - [switch](https://developers.home-assistant.io/docs/core/entity/switch)
+- [humidifier](https://developers.home-assistant.io/docs/core/entity/humidifier)
 
 The integration supports `mDNS` (zeroconf) detection of devices which advertise as `_nodemcu-ha._tcp.local`, having property `path` containing the path to device's HTTP endpoint serving HASS integration.
 
@@ -159,7 +160,14 @@ Common to **all** items is the need to specify `key` property. Its value must po
         "name": "<entity name, appended to device name>",
         "device_class": "<one of Button device classes>",
       }
-    ]
+    ],
+    "humidifier": [
+        {
+        "key": "<json path to the DeviceData property containing entity's data>",
+        "name": "<entity name, appended to device name>",
+        "device_class": "<one of Humidifier device classes>"
+        }
+    ],
 }
 ```
 
@@ -210,7 +218,7 @@ It is modelled after actual HomeAssistant Entity data structure where list of pr
 
         "is_aux_heat": true|false|"<if SUPPORT_AUX_HEAT>",
 
-        "supported_features": 255|"<bit-or of SUPPORTED_FEATURES>",
+        "supported_features": 255|"<bit-or of Climate SUPPORTED_FEATURES>",
     },
     "<some attribute path, mentioned in DeviceSpec.light.key value>": {
         "is_on": true|false,
@@ -243,6 +251,17 @@ It is modelled after actual HomeAssistant Entity data structure where list of pr
         "supported_color_modes": ["<list of COLOR_MODES>"],
         "supported_features": 44|"<bit-or of COLOR_SUPPORTED_FEATURES>",
     },
+    "<some attribute path, mentioned in DeviceSpec.humidifier.key value>": {
+        "is_on": true|false,
+        "action": "<one of Humidifier actions>",
+        "current_humidity": 50|"<actual value, int>",
+        "target_humidity": 70|"<actual value, int>",
+        "max_humidity": 100|"<actual value, int>",
+        "min_humidity": 0"<actual value, int>",
+        "available_modes": ["<list of supported Humidifier modes>"],
+        "mode": "<one of Humidifier modes>",
+        "supported_features": 1|"<bit-or of Humidifier SUPPORTED_FEATURES>"
+    }
 }
 ```
 
@@ -357,9 +376,30 @@ Button when pressed would generate following payload:
 }
 ```
 
+Humidifier supports several distinct changes (services), as triggered via the UI:
+
+```json
+{
+  "<some attribute path, mentioned in DeviceSpec.humidifier.key value>": {
+    "target_humidity": 21.3|"<target value>"
+  }
+}
+{
+  "<some attribute path, mentioned in DeviceSpec.humidifier.key value>": {
+    "is_on": true|false
+  }
+}
+{
+  "<some attribute path, mentioned in DeviceSpec.humidifier.key value>": {
+    "mode": "<one of Humidifier modes>"
+  }
+}
+```
+
 Reference of various constants defined in HomeAssistance source code:
 
 ```text
+Climate related:
     # HVACAction.COOLING = "cooling"
     # HVACAction.DRYING = "drying"
     # HVACAction.FAN = "fan"
@@ -421,6 +461,7 @@ Reference of various constants defined in HomeAssistance source code:
       # SUPPORT_SWING_MODE = 32
       # SUPPORT_AUX_HEAT = 64
 
+Light related:
     # COLOR_MODES:
       # UNKNOWN = "unknown"  # Ambiguous color mode
       # ONOFF = "onoff"  # Must be the only supported mode
@@ -437,6 +478,24 @@ Reference of various constants defined in HomeAssistance source code:
       # EFFECT = 4
       # FLASH = 8
       # TRANSITION = 32
+
+Humidifier related:
+    # ACTIONS:
+        # HUMIDIFYING = "humidifying"
+        # DRYING = "drying"
+        # IDLE = "idle"
+        # OFF = "off"
+
+    # MODES:
+        # MODE_NORMAL	  = "normal" # No preset is active, normal operation
+        # MODE_ECO	    = "eco" # Device is running an energy-saving mode
+        # MODE_AWAY	    = "away" # Device is in away mode
+        # MODE_BOOST	  = "boost" # Device turn all valve full up
+        # MODE_COMFORT	= "comfort" # Device is in comfort mode
+        # MODE_HOME	    = "home" # Device is in home mode
+        # MODE_SLEEP	  = "sleep" # Device is prepared for sleep
+        # MODE_AUTO	    = "auto" # Device is controlling humidity by itself
+        # MODE_BABY	    = "baby" # Device is trying to optimize for babies
 ```
 
 ## Troubleshooting hints
@@ -451,6 +510,13 @@ The code is hardwired to recognize `stub` as special hostname (see `mediation.py
 If you integrate a device with uri `http://stub/api` the mediation will serve the `test_data.py` data instead of talking to a remote host.
 
 This is the simplest and fastest way to tune specifications and data.
+Also when stubbed, any setting change will be printed to console like:
+
+```text
+[NodeMCU stub] : POST /api/ha/data : {"humidifier1": {"is_on": false}}
+```
+
+Note: that there is no real device behind and all entity state changes will be only momentary.
 
 If you do really do have a legitimate hostname called `stub` and you want to integrate it, just modify `mediation.py:stubHost` variable value.
 

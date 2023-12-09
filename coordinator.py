@@ -6,7 +6,7 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntry
+from homeassistant.helpers.device_registry import DeviceEntry, DeviceInfo
 from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.exceptions import IntegrationError
@@ -30,7 +30,7 @@ class NMDeviceCoordinator(DataUpdateCoordinator[NMDeviceData]):
     """
     Basically a typed DataUpdateCoordinator
 
-    It is used to coordinate updates across many sesonrs (NMEntity)
+    It is used to coordinate updates across many sensors (NMEntity)
     via single request.
     """
 
@@ -39,6 +39,7 @@ class NMDeviceCoordinator(DataUpdateCoordinator[NMDeviceData]):
     # the entry of the device, used to form child entity ids
     confEntry: ConfigEntry
     deviceEntry: DeviceEntry
+    deviceInfo: DeviceInfo
 
     # "device info" object as dict_to_obj result of upload of "/info" endpoint
     read_device_info: dict[str, str]
@@ -94,5 +95,8 @@ async def newCoordinator(
     c.confEntry = entry
     c.read_device_info = device_info
     c.read_device_spec = spec
+
+    # c.deviceInfo is set by async_setup_entry
+    # c.deviceEntry is set by async_setup_entry
 
     return c

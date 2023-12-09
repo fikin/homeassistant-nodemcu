@@ -16,7 +16,7 @@ def dict_to_attr(o: T, d: dict[str, Any]) -> T:
             if isinstance(o.__getattribute__(k), tuple):
                 v = {"__tuple__": True, "items": v}
         except AttributeError as ex:
-            print(ex)
+            print(f"NodeMCU : dict_to_attr : %s" % ex)
         setattr(o, k, v)
     return o
 

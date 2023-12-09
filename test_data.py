@@ -34,7 +34,7 @@ DummyDeviceSpec: Final = {
     ],
     "climate": [
         {
-            "key": "thermostat",
+            "key": "thermostat1",
             "name": "Thermostat",
         }
     ],
@@ -59,13 +59,21 @@ DummyDeviceSpec: Final = {
             "device_class": "restart",
         }
     ],
+    "humidifier": [
+        {
+            "key": "humidifier1",
+            "name": "Humidifier",
+            "device_class": "humidifier",
+            # "device_class": "dehumidifier"
+        }
+    ],
 }
 
 DummyDeviceData: Final = {
     "inA0": {"native_value": 24},
     "inD2": {"is_on": True},
     "outD4": {"is_on": True},
-    "thermostat": {
+    "thermostat1": {
         "temperature_unit": "°C",
         "current_temperature": 17.35,
         "current_humidity": 57,
@@ -203,4 +211,34 @@ DummyDeviceData: Final = {
         "color_mode": "brightness",
         "supported_color_modes": ["brightness"],
     },
+    "humidifier1": {
+        "is_on": True,
+        #
+        # HUMIDIFYING = "humidifying"
+        # DRYING = "drying"
+        # IDLE = "idle"
+        # OFF = "off"
+        "action": "off",
+        #
+        "current_humidity": 50,
+        "target_humidity": 70,
+        "max_humidity": 100,
+        "min_humidity": 0,
+        #
+        # MODE_NORMAL	No preset is active, normal operation
+        # MODE_ECO	    Device is running an energy-saving mode
+        # MODE_AWAY	    Device is in away mode
+        # MODE_BOOST	Device turn all valve full up
+        # MODE_COMFORT	Device is in comfort mode
+        # MODE_HOME	    Device is in home mode
+        # MODE_SLEEP	Device is prepared for sleep
+        # MODE_AUTO	    Device is controlling humidity by itself
+        # MODE_BABY	    Device is trying to optimize for babies
+        "available_modes": ["normal", "eco", "away", "boost", "comfort", "home", "sleep", "auto", "baby"],
+        #
+        "mode": "auto",
+        #
+        # MODES = 1
+        "supported_features": 1,
+    }
 }
