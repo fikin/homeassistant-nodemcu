@@ -19,7 +19,7 @@ from .entity import NMBaseEntity, instrument_update, send_state
 from .utils import dict_to_obj
 
 
-class NMEntity(NMBaseEntity, ClimateEntity):  # type: ignore
+class NMEntityClimate(NMBaseEntity, ClimateEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
     async def async_set_temperature(self, **kwargs: Any) -> None:  # type: ignore
@@ -56,15 +56,15 @@ class NMEntity(NMBaseEntity, ClimateEntity):  # type: ignore
         await send_state(self, {"is_aux_heat": False})
 
     async def async_turn_on(self) -> None:
-        await send_state(self, {"turn": True})
+        await send_state(self, {"hvac_mode": "auto"})
 
     async def async_turn_off(self) -> None:
-        await send_state(self, {"turn": False})
+        await send_state(self, {"hvac_mode": "off"})
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityClimate:
     desc = dict_to_obj(ClimateEntityDescription(key="TODO"), spec)
-    e = NMEntity(coordinator, desc)
+    e = NMEntityClimate(coordinator, desc)
     instrument_update(e)
     return e
 

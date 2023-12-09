@@ -14,13 +14,13 @@ from .entity import NMBaseEntity, instrument_update
 from .utils import dict_to_obj
 
 
-class NMEntity(NMBaseEntity, BinarySensorEntity):  # type: ignore
+class NMEntityBinarySensor(NMBaseEntity, BinarySensorEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityBinarySensor:
     desc = dict_to_obj(BinarySensorEntityDescription(key="TODO"), spec)
-    e = NMEntity(coordinator, desc)
+    e = NMEntityBinarySensor(coordinator, desc)
     instrument_update(e)
     return e
 

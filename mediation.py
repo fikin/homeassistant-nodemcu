@@ -151,5 +151,6 @@ async def update_device_data(conn: NMConnection, data: dict[str, Any]) -> None:
     """POST the data to /data endpoint"""
     if conn.hostname == stubHost:
         # print here your data or simply put a breakpoint
+        print(f'[NodeMCU stub] : POST /api/ha/data : %s' % json.dumps(data))
         return
     return await conn.hass.async_add_executor_job(_doPost, conn, data)

@@ -14,7 +14,7 @@ from .entity import NMBaseEntity, instrument_update, send_state
 from .utils import dict_to_obj
 
 
-class NMEntity(NMBaseEntity, SwitchEntity):  # type: ignore
+class NMEntitySwitch(NMBaseEntity, SwitchEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
     async def async_turn_off(self, **kwargs: Any) -> None:
@@ -24,9 +24,9 @@ class NMEntity(NMBaseEntity, SwitchEntity):  # type: ignore
         await send_state(self, {"is_on": True})
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntitySwitch:
     desc = dict_to_obj(SwitchEntityDescription(key="TODO"), spec)
-    e = NMEntity(coordinator, desc)
+    e = NMEntitySwitch(coordinator, desc)
     instrument_update(e)
     return e
 

@@ -31,13 +31,14 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         )
         self._attr_name = f"{deviceName} {description.name}"
         self._attr_unique_id = f"{coordinator.confEntry.unique_id} {description.name}"
-        self._attr_device_info = {
-            "name": f"{deviceName} {description.name}",
-            "via_device": (DOMAIN, coordinator.confEntry.entry_id),
-            "connections": coordinator.deviceEntry.connections,
-            "identifiers": coordinator.deviceEntry.identifiers,
-        }
+        # self._attr_device_info = {
+        #     "name": f"{deviceName} {description.name}",
+        #     "via_device": (DOMAIN, coordinator.confEntry.entry_id),
+        #     "connections": coordinator.deviceEntry.connections,
+        #     "identifiers": coordinator.deviceEntry.identifiers,
+        # }
         self._attr_extra_state_attributes = {"hostname": coordinator.conn.hostname}
+        self._attr_device_info = coordinator.deviceInfo
 
 
 def update_entity(e: NMBaseEntity) -> None:

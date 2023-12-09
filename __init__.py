@@ -6,14 +6,12 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr, entity_registry as er
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceEntry
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceEntry, DeviceInfo
 
 from .const import DOMAIN
-from .coordinator import newCoordinator, NMDeviceCoordinator
+from .coordinator import newCoordinator, NMConnection
 
 
-# TODO List the platforms that you want to support.
-# For your initial PR, limit it to 1 platform.
 PLATFORMS: list[Platform] = [
     Platform.LIGHT,
     Platform.SENSOR,
@@ -21,6 +19,7 @@ PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
     Platform.BINARY_SENSOR,
     Platform.BUTTON,
+    Platform.HUMIDIFIER,
 ]
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,10 +36,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # hass.data[DOMAIN][entry.entry_id] = MyApi(...)
     deviceCoordinator = await newCoordinator(hass, _LOGGER, entry)
 
+    # assign entry unique id using coordinator's generation logic
     entry.unique_id = f"{DOMAIN} {deviceCoordinator.conn.generated_unique_id}"
+
+    # store the coordinator in hass domain
     hass.data[DOMAIN][entry.entry_id] = deviceCoordinator
 
-    deviceCoordinator.deviceEntry = doSetupDevice(hass, entry, deviceCoordinator)
+    # pre-create device info object, to be used by all device entries
+    deviceCoordinator.deviceInfo = doSetupDeviceInfo(entry, deviceCoordinator.conn, deviceCoordinator.read_device_info)
+    print(deviceCoordinator.deviceInfo)
+
+    # do register DeviceEntry for this connector to act as hass device for all entries
+    deviceCoordinator.deviceEntry = doSetupDevice(hass, entry.entry_id, deviceCoordinator.deviceInfo)
 
     # first data load from the endpoint before continuing with entities setup
     await deviceCoordinator.async_config_entry_first_refresh()
@@ -61,22 +68,46 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     return unload_ok
 
 
+def doSetupDeviceInfo(
+    entry: ConfigEntry, conn: NMConnection, read_device_info: dict[str, str]
+) -> DeviceInfo:
+    """create DeviceInfo out of config-entry"""
+    return DeviceInfo(
+        configuration_url=conn.urlBase,
+        connections={(dr.CONNECTION_NETWORK_MAC, conn.hostname)},
+        # default_manufacturer="NodeMCU",
+        # default_model="NodeMCU Device",
+        # default_name="NodeMCU Device",
+        # entry_type=DeviceEntryType.SERVICE,
+        identifiers={(DOMAIN, str(entry.unique_id))},
+        manufacturer=read_device_info.get("manufacturer"),
+        model=read_device_info.get("model"),
+        name=f"%s %s" % (conn.hostname, read_device_info.get("name")),
+        # suggested_area,
+        sw_version=read_device_info.get("swVersion"),
+        hw_version=read_device_info.get("hwVersion"),
+        # via_device=()
+    )
+
 def doSetupDevice(
-    hass: HomeAssistant, entry: ConfigEntry, deviceCoordinator: NMDeviceCoordinator
+    hass: HomeAssistant, entryId: str, dInfo: DeviceInfo
 ) -> DeviceEntry:
     """register the config-entry as device info"""
-    readFromDevInfo = deviceCoordinator.read_device_info
     return dr.async_get(hass).async_get_or_create(
-        config_entry_id=entry.entry_id,
-        configuration_url=f"http://%s" % deviceCoordinator.conn.hostname,
-        connections={(dr.CONNECTION_NETWORK_MAC, deviceCoordinator.conn.hostname)},
-        entry_type=DeviceEntryType.SERVICE,
-        hw_version=readFromDevInfo["hwVersion"],
-        identifiers={(DOMAIN, str(entry.unique_id))},
-        manufacturer=readFromDevInfo["manufacturer"],
-        model=readFromDevInfo["model"],
-        name=f"%s %s" % (deviceCoordinator.conn.hostname, readFromDevInfo["name"]),
-        sw_version=readFromDevInfo["swVersion"],
+        config_entry_id=entryId,
+        configuration_url=dInfo.get("configuration_url"),
+        connections=dInfo.get("connections"),
+        # entry_type=dInfo.get("entry_type"),
+        hw_version=dInfo.get("hw_version"),
+        identifiers=dInfo.get("identifiers"),
+        manufacturer=dInfo.get("manufacturer"),
+        model=dInfo.get("model"),
+        name=dInfo.get("name"),
+        sw_version=dInfo.get("sw_version"),
+        # default_manufacturer=dInfo.get("default_manufacturer"),
+        # default_model=dInfo.get("default_model"),
+        # default_name=dInfo.get("default_name"),
+        # suggested_area=dInfo.get("suggested_area"),
     )
 
 

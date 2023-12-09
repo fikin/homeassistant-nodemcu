@@ -14,16 +14,16 @@ from .entity import NMBaseEntity, send_state
 from .utils import dict_to_obj
 
 
-class NMEntity(NMBaseEntity, ButtonEntity):  # type: ignore
+class NMEntityButton(NMBaseEntity, ButtonEntity):  # type: ignore
     """Representation of a NodeMCU sensor."""
 
     async def async_press(self) -> None:
         await send_state(self, {"action": str(self.device_class)})
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntity:
+def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityButton:
     desc = dict_to_obj(ButtonEntityDescription(key="TODO"), spec)
-    return NMEntity(coordinator, desc)
+    return NMEntityButton(coordinator, desc)
 
 
 async def async_setup_entry(
