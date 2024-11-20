@@ -11,7 +11,6 @@ from homeassistant.components.binary_sensor import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update
-from .utils import dict_to_obj
 
 
 class NMEntityBinarySensor(NMBaseEntity, BinarySensorEntity):  # type: ignore
@@ -19,7 +18,7 @@ class NMEntityBinarySensor(NMBaseEntity, BinarySensorEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityBinarySensor:
-    desc = dict_to_obj(BinarySensorEntityDescription(key="TODO"), spec)
+    desc = BinarySensorEntityDescription(**spec)
     e = NMEntityBinarySensor(coordinator, desc)
     instrument_update(e)
     return e

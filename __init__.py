@@ -37,7 +37,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     deviceCoordinator = await newCoordinator(hass, _LOGGER, entry)
 
     # assign entry unique id using coordinator's generation logic
-    entry.unique_id = f"{DOMAIN} {deviceCoordinator.conn.generated_unique_id}"
+    if entry.unique_id is None:
+        hass.config_entries.async_update_entry(
+            entry, unique_id = f"{DOMAIN} {deviceCoordinator.conn.generated_unique_id}"
+        )
 
     # store the coordinator in hass domain
     hass.data[DOMAIN][entry.entry_id] = deviceCoordinator

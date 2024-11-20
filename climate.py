@@ -16,7 +16,6 @@ from homeassistant.components.climate import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
-from .utils import dict_to_obj
 
 
 class NMEntityClimate(NMBaseEntity, ClimateEntity):  # type: ignore
@@ -63,7 +62,7 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityClimate:
-    desc = dict_to_obj(ClimateEntityDescription(key="TODO"), spec)
+    desc = ClimateEntityDescription(**spec)
     e = NMEntityClimate(coordinator, desc)
     instrument_update(e)
     return e

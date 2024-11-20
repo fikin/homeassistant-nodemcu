@@ -18,7 +18,6 @@ from homeassistant.components.humidifier import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
-from .utils import dict_to_obj
 
 
 class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):  # type: ignore
@@ -38,7 +37,7 @@ class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityHumidifier:
-    desc = dict_to_obj(HumidifierEntityDescription(key="TODO"), spec)
+    desc = HumidifierEntityDescription(**spec)
     e = NMEntityHumidifier(coordinator, desc)
     instrument_update(e)
     return e

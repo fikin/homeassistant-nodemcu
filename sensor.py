@@ -11,7 +11,6 @@ from homeassistant.components.sensor import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update
-from .utils import dict_to_obj
 
 
 class NMEntitySensor(NMBaseEntity, SensorEntity):  # type: ignore
@@ -19,7 +18,7 @@ class NMEntitySensor(NMBaseEntity, SensorEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntitySensor:
-    desc = dict_to_obj(SensorEntityDescription(key="TODO"), spec)
+    desc = SensorEntityDescription(**spec)
     e = NMEntitySensor(coordinator, desc)
     instrument_update(e)
     return e

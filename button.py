@@ -11,7 +11,6 @@ from homeassistant.components.button import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, send_state
-from .utils import dict_to_obj
 
 
 class NMEntityButton(NMBaseEntity, ButtonEntity):  # type: ignore
@@ -22,7 +21,7 @@ class NMEntityButton(NMBaseEntity, ButtonEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityButton:
-    desc = dict_to_obj(ButtonEntityDescription(key="TODO"), spec)
+    desc = ButtonEntityDescription(**spec)
     return NMEntityButton(coordinator, desc)
 
 

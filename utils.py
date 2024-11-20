@@ -3,12 +3,6 @@ from typing import TypeVar, Any
 T = TypeVar("T")
 
 
-def dict_to_obj(o: T, d: dict[str, Any]) -> T:
-    for k, v in d.items():
-        setattr(o, k, v)
-    return o
-
-
 def dict_to_attr(o: T, d: dict[str, Any]) -> T:
     for k, v in d.items():
         k = f"_attr_%s" % k

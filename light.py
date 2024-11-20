@@ -11,7 +11,6 @@ from homeassistant.components.light import (
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
-from .utils import dict_to_obj
 
 
 class NMEntityLight(NMBaseEntity, LightEntity):  # type: ignore
@@ -31,7 +30,7 @@ class NMEntityLight(NMBaseEntity, LightEntity):  # type: ignore
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:
-    desc = dict_to_obj(LightEntityDescription(key="TODO"), spec)
+    desc = LightEntityDescription(**spec)
     e = NMEntityLight(coordinator, desc)
     instrument_update(e)
     return e

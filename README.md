@@ -162,11 +162,11 @@ Common to **all** items is the need to specify `key` property. Its value must po
       }
     ],
     "humidifier": [
-        {
+      {
         "key": "<json path to the DeviceData property containing entity's data>",
         "name": "<entity name, appended to device name>",
         "device_class": "<one of Humidifier device classes>"
-        }
+      }
     ],
 }
 ```
@@ -181,13 +181,19 @@ It is modelled after actual HomeAssistant Entity data structure where list of pr
 - [climate](https://developers.home-assistant.io/docs/core/entity/climate)
 - [sensor](https://developers.home-assistant.io/docs/core/entity/sensor)
 - [switch](https://developers.home-assistant.io/docs/core/entity/switch)
+- [light](https://developers.home-assistant.io/docs/core/entity/light)
+- [button](https://developers.home-assistant.io/docs/core/entity/button)
+- [humidifier](https://developers.home-assistant.io/docs/core/entity/humidifier)
 
 ```json
 {
     "<some attribute path, mentioned in DeviceSpec.sensor.key value>": {
         "native_value": 24|"<actual value of the sensor, supports float format>"
     },
-    "<some attribute path, mentioned in DeviceSpec.{binary_sensor,switch}.key value>": {
+    "<some attribute path, mentioned in DeviceSpec.binary_sensor.key value>": {
+        "is_on": true|false
+    },
+    "<some attribute path, mentioned in DeviceSpec.switch.key value>": {
         "is_on": true|false
     },
     "<some attribute path, mentioned in DeviceSpec.climate.key value>": {
