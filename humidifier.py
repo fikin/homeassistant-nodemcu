@@ -4,6 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.humidifier import (
+    HumidifierEntityFeature,
     HumidifierEntity,
     HumidifierEntityDescription,
     ATTR_HUMIDITY,
@@ -36,8 +37,18 @@ class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):  # type: ignore
         await send_state(self, {"is_on": False})
 
 
+def _features_enum(integer_value: int) -> HumidifierEntityFeature:
+    flags = []
+    for flag in HumidifierEntityFeature:
+        if integer_value & flag.value:
+            flags.append(flag)
+    return flags | HumidifierEntityFeature(0)  # Combine flags into a single IntFlag object
+
+
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityHumidifier:
     desc = HumidifierEntityDescription(**spec)
+    if desc["supported_features"]:
+        desc["supported_features"] = _features_enum(desc["supported_features"])
     e = NMEntityHumidifier(coordinator, desc)
     instrument_update(e)
     return e

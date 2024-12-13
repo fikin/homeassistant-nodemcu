@@ -4,6 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.light import (
+    LightEntityFeature,
     LightEntity,
     LightEntityDescription,
 )
@@ -29,8 +30,18 @@ class NMEntityLight(NMBaseEntity, LightEntity):  # type: ignore
         await self._setOnOff(True, kwargs)
 
 
+def _features_enum(integer_value: int) -> LightEntityFeature:
+    flags = []
+    for flag in LightEntityFeature:
+        if integer_value & flag.value:
+            flags.append(flag)
+    return flags | LightEntityFeature(0)  # Combine flags into a single IntFlag object
+
+
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:
     desc = LightEntityDescription(**spec)
+    if desc["supported_features"]:
+        desc["supported_features"] = _features_enum(desc["supported_features"])
     e = NMEntityLight(coordinator, desc)
     instrument_update(e)
     return e

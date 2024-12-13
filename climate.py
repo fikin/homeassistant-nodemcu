@@ -4,6 +4,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.climate import (
+    ClimateEntityFeature,
     ClimateEntity,
     ClimateEntityDescription,
     HVACMode,
@@ -61,8 +62,18 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):  # type: ignore
         await send_state(self, {"hvac_mode": "off"})
 
 
+def _features_enum(integer_value: int) -> ClimateEntityFeature:
+    flags = []
+    for flag in ClimateEntityFeature:
+        if integer_value & flag.value:
+            flags.append(flag)
+    return flags | ClimateEntityFeature(0)  # Combine flags into a single IntFlag object
+
+
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityClimate:
     desc = ClimateEntityDescription(**spec)
+    if desc["supported_features"]:
+        desc["supported_features"] = _features_enum(desc["supported_features"])
     e = NMEntityClimate(coordinator, desc)
     instrument_update(e)
     return e
