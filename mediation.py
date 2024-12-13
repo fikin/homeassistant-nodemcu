@@ -2,8 +2,9 @@
 
 import json
 import hashlib
-from requests import get, post
+from requests import Session
 from requests.auth import HTTPBasicAuth
+from requests.adapters import HTTPAdapter
 from typing import Any, Final
 
 from homeassistant.core import HomeAssistant
@@ -28,6 +29,11 @@ headers: Final = {"Content-Type": "application/json", "User-Agent": "hass-nodemc
 # Useful to play with data structures and overall HASS behavior
 # without using actual NodeMCU device.
 stubHost: Final = "stub"
+
+
+# an http client session with retries to ensure unreliable network
+cl = Session()
+cl.mount('http://', HTTPAdapter(max_retries=3))
 
 
 class NMConnection:
@@ -93,7 +99,7 @@ def _doGetLowLevel(conn: NMConnection, subPath: str) -> dict[str, Any]:
     """helper running GET against the device"""
     u = f"%s%s" % (conn.urlBase, subPath)
     try:
-        resp = get(url=u, headers=headers, auth=conn.auth, timeout=30)
+        resp = cl.get(url=u, headers=headers, auth=conn.auth)
         if resp.status_code == 401:
             raise InvalidAuth()
         return resp.json()
@@ -111,9 +117,7 @@ async def _doGet(conn: NMConnection, subPath: str) -> dict[str, Any]:
 def _doPost(conn: NMConnection, data: dict[str, Any]) -> None:
     u = f"%s%s" % (conn.urlBase, "/data")
     try:
-        resp = post(
-            url=u, headers=headers, auth=conn.auth, data=json.dumps(data), timeout=30
-        )
+        resp = cl.post(url=u, headers=headers, auth=conn.auth, data=json.dumps(data))
         if resp.status_code == 401:
             raise InvalidAuth()
         elif resp.status_code != 200:
