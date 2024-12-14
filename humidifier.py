@@ -31,6 +31,9 @@ class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:  # noqa: D102
         await send_state(self, {"is_on": False})
 
+    def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
+        return {**tbl, "supported_features": _features_enum(tbl["supported_features"])}
+
 
 def _features_enum(integer_value: int) -> HumidifierEntityFeature:
     flags = [flag for flag in HumidifierEntityFeature if integer_value & flag.value]
@@ -42,8 +45,7 @@ def _features_enum(integer_value: int) -> HumidifierEntityFeature:
 def _newEntity(
     coordinator: NMDeviceCoordinator, spec: dict[str, Any]
 ) -> NMEntityHumidifier:
-    spec2 = {**spec, "supported_features": _features_enum(spec["supported_features"])}
-    desc = HumidifierEntityDescription(**spec2)
+    desc = HumidifierEntityDescription(**spec)
     e = NMEntityHumidifier(coordinator, desc)
     instrument_update(e)
     return e

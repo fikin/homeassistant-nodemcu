@@ -61,6 +61,9 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):
     async def async_turn_off(self) -> None:  # noqa: D102
         await send_state(self, {"hvac_mode": "off"})
 
+    def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
+        return {**tbl, "supported_features": _features_enum(tbl["supported_features"])}
+
 
 def _features_enum(integer_value: int) -> ClimateEntityFeature:
     flags = [flag for flag in ClimateEntityFeature if integer_value & flag.value]
@@ -70,8 +73,7 @@ def _features_enum(integer_value: int) -> ClimateEntityFeature:
 def _newEntity(
     coordinator: NMDeviceCoordinator, spec: dict[str, Any]
 ) -> NMEntityClimate:
-    spec2 = {**spec, "supported_features": _features_enum(spec["supported_features"])}
-    desc = ClimateEntityDescription(**spec2)
+    desc = ClimateEntityDescription(**spec)
     e = NMEntityClimate(coordinator, desc)
     instrument_update(e)
     return e

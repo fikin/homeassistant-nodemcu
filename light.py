@@ -27,6 +27,9 @@ class NMEntityLight(NMBaseEntity, LightEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:  # noqa: D102
         await self._setOnOff(True, kwargs)
 
+    def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
+        return {**tbl, "supported_features": _features_enum(tbl["supported_features"])}
+
 
 def _features_enum(integer_value: int) -> LightEntityFeature:
     flags = [flag for flag in LightEntityFeature if integer_value & flag.value]
@@ -34,8 +37,7 @@ def _features_enum(integer_value: int) -> LightEntityFeature:
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:
-    spec2 = {**spec, "supported_features": _features_enum(spec["supported_features"])}
-    desc = LightEntityDescription(**spec2)
+    desc = LightEntityDescription(**spec)
     e = NMEntityLight(coordinator, desc)
     instrument_update(e)
     return e

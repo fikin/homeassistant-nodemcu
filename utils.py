@@ -34,8 +34,7 @@ def deep_get(d: dict[str, Any], key: str, default: Any | None = None) -> Any | N
         if d is None:
             return default
         # ... if it's something else, raise
-        else:
-            raise
+        raise
     # If the value was found, return it
     else:
         return d

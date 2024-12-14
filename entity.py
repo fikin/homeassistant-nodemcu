@@ -40,33 +40,29 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         self._attr_extra_state_attributes = {"hostname": coordinator.conn.hostname}
         self._attr_device_info = coordinator.device_info
 
+    async def update_entity(self) -> None:
+        """Update an entity after a device async_update()."""
+        # It reads from read data "key", expecting to be a table
+        # It blindly sets the table key-values to Entity attributes
 
-def update_entity(e: NMBaseEntity) -> None:
-    """Update an entity after a device async_update().
+        # Note: it expects the table keys are named after Entity attributes
+        # in the form of "_attr_<key>"
+        tbl = deep_get(self.coordinator.data, self.entity_description.key, {})
+        tbl = self.on_update(tbl)
+        dict_to_attr(self, cast(dict[str, Any], tbl))
 
-    It reads data from NMDeviceCoordinator.data and updates
-    NMBaseEntity directly.
-    """
-    # It reads from read data "key", expecting to be a table
-    # It blindly sets the table key-values to Entity attributes
-
-    # Note: it expects the table keys are named after Entity attributes
-    # in the form of "_attr_<key>"
-    tbl = deep_get(e.coordinator.data, e.entity_description.key, {})
-    dict_to_attr(e, cast(dict[str, Any], tbl))
+    def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:
+        """Subclass to do something to data before setting attributes to self."""
+        return tbl
 
 
 def instrument_update(e: NMBaseEntity) -> None:
     """Set up device update callback for the entity and reads/loads initial values (data)."""
 
-    # define callback on each coordinated device update to update entity's own properties
-    def _updEntityFn():
-        update_entity(e)
-
-    e.coordinator.async_add_listener(_updEntityFn)
+    e.coordinator.async_add_listener(e.update_entity)
 
     # set values right after creation
-    update_entity(e)
+    e.update_entity()
 
 
 async def send_state(e: NMBaseEntity, payload: dict[str, Any]) -> None:
