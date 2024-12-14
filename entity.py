@@ -2,6 +2,7 @@
 
 from typing import Any, cast
 
+from homeassistant.core import DOMAIN
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -29,6 +30,7 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         deviceName = (
             f"{coordinator.conn.hostname} {coordinator.read_device_info["name"]}"
         )
+        self.entity_id = f"{DOMAIN}.{coordinator.conn.hostname}"
         self._attr_name = f"{deviceName} {description.name}"
         self._attr_unique_id = f"{coordinator.conf_entry.unique_id} {description.name}"
         # self._attr_device_info = {
@@ -40,7 +42,7 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         self._attr_extra_state_attributes = {"hostname": coordinator.conn.hostname}
         self._attr_device_info = coordinator.device_info
 
-    async def update_entity(self) -> None:
+    def update_entity(self) -> None:
         """Update an entity after a device async_update()."""
         # It reads from read data "key", expecting to be a table
         # It blindly sets the table key-values to Entity attributes

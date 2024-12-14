@@ -12,6 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
+from .utils import int_to_enum
 
 
 class NMEntityLight(NMBaseEntity, LightEntity):
@@ -28,12 +29,12 @@ class NMEntityLight(NMBaseEntity, LightEntity):
         await self._setOnOff(True, kwargs)
 
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
-        return {**tbl, "supported_features": _features_enum(tbl["supported_features"])}
-
-
-def _features_enum(integer_value: int) -> LightEntityFeature:
-    flags = [flag for flag in LightEntityFeature if integer_value & flag.value]
-    return flags | LightEntityFeature(0)  # Combine flags into a single IntFlag object
+        return {
+            **tbl,
+            "supported_features": int_to_enum(
+                tbl["supported_features"], LightEntityFeature
+            ),
+        }
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:

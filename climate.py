@@ -17,6 +17,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
+from .utils import int_to_enum
 
 
 class NMEntityClimate(NMBaseEntity, ClimateEntity):
@@ -62,12 +63,12 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):
         await send_state(self, {"hvac_mode": "off"})
 
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
-        return {**tbl, "supported_features": _features_enum(tbl["supported_features"])}
-
-
-def _features_enum(integer_value: int) -> ClimateEntityFeature:
-    flags = [flag for flag in ClimateEntityFeature if integer_value & flag.value]
-    return flags | ClimateEntityFeature(0)  # Combine flags into a single IntFlag object
+        return {
+            **tbl,
+            "supported_features": int_to_enum(
+                tbl["supported_features"], ClimateEntityFeature
+            ),
+        }
 
 
 def _newEntity(

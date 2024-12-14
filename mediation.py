@@ -34,7 +34,7 @@ stubHost: Final = "stub"
 
 # an http client session with retries to ensure unreliable network
 cl = Session()
-cl.mount("http://", HTTPAdapter(max_retries=3))
+cl.mount("http://", HTTPAdapter(max_retries=5))
 
 
 class NMConnection:
