@@ -1,22 +1,25 @@
-from typing import TypeVar, Any
+"""The module provides utility functions for NodeMCU components."""
+
+import logging
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
 
-def dict_to_attr(o: T, d: dict[str, Any]) -> T:
+def dict_to_attr(o: T, d: dict[str, Any]) -> T:  # noqa: D103
     for k, v in d.items():
-        k = f"_attr_%s" % k
+        k = f"_attr_{k}"
         try:
             if isinstance(o.__getattribute__(k), tuple):
                 v = {"__tuple__": True, "items": v}
         except AttributeError as ex:
-            print(f"NodeMCU : dict_to_attr : %s" % ex)
+            logging.warning("NodeMCU : dict_to_attr : %s", ex)
         setattr(o, k, v)
     return o
 
 
 def deep_get(d: dict[str, Any], key: str, default: Any | None = None) -> Any | None:
-    """Safely get a nested value from a dict, useful to get deep values from json data"""
+    """Get safely get a nested value from a dict, useful to get deep values from json data."""
 
     # Descend while we can
     try:
@@ -39,7 +42,7 @@ def deep_get(d: dict[str, Any], key: str, default: Any | None = None) -> Any | N
 
 
 def deepdict(key: str, lastValue: Any) -> dict[str, Any]:
-    """Takes key (optionally path with.) in and returns deep dict with last key=lastValue"""
+    """Take key (optionally path with.) in and returns deep dict with last key=lastValue."""
     arr = key.split(".", 1)
     if len(arr) == 1:
         return {arr[0]: lastValue}

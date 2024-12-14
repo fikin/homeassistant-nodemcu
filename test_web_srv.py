@@ -3,19 +3,22 @@
 # Test server, one can start manually and use it to test integrate against test_data.py using http://localhost:8080/api URI.
 
 # Python 3 server example
-from typing import Any
-from http.server import BaseHTTPRequestHandler, HTTPServer
 from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import logging
+from typing import Any
 
 import test_data
+
+logging.basicConfig(level=logging.INFO)
 
 hostName = "localhost"
 serverPort = 8080
 
 
-class MyServer(BaseHTTPRequestHandler):
-    def sendJsonObj(self, data: dict[str, Any]) -> None:
+class MyServer(BaseHTTPRequestHandler):  # noqa: D101
+    def sendJsonObj(self, data: dict[str, Any]) -> None:  # noqa: D102
         dt = bytes(json.dumps(data), "utf-8")
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
@@ -23,11 +26,11 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(dt)
 
-    def readJsonObj(self):
+    def readJsonObj(self):  # noqa: D102
         o = self.rfile.read(int(self.headers["Content-Length"]))
-        print(o)
+        logging.info(o)
 
-    def doAny(self):
+    def doAny(self):  # noqa: D102
         if self.command == "GET" and self.path == "/api/info":
             self.sendJsonObj(test_data.DummyDeviceInfo)
         elif self.command == "GET" and self.path == "/api/spec":
@@ -41,7 +44,7 @@ class MyServer(BaseHTTPRequestHandler):
         else:
             self.send_response(404)
 
-    def handle(self):
+    def handle(self):  # noqa: D102
         try:
             self.raw_requestline = self.rfile.readline(65537)
             if len(self.raw_requestline) > 65536:
@@ -66,12 +69,12 @@ class MyServer(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    print("Server started http://%s:%s" % (hostName, serverPort))
+    logging.info("Server started http://%s:%s", hostName, serverPort)
 
-    try:
+    from contextlib import suppress
+
+    with suppress(KeyboardInterrupt):
         webServer.serve_forever()
-    except KeyboardInterrupt:
-        pass
 
     webServer.server_close()
-    print("Server stopped.")
+    logging.info("Server stopped.")

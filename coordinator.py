@@ -1,34 +1,30 @@
 """HASS object to coordinate update of multiple sensors (NMEntity) together via single request."""
 
+from datetime import timedelta
 from logging import Logger
 from typing import Any
-from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntry, DeviceInfo
-from homeassistant.helpers.debounce import Debouncer
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.exceptions import IntegrationError
+from homeassistant.helpers.debounce import Debouncer
+from homeassistant.helpers.device_registry import DeviceEntry, DeviceInfo
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import (
-    CONF_HOST,
-    CONF_PERIOD,
-)
+from .const import CONF_HOST, CONF_PERIOD
 from .mediation import (
-    NMDeviceData,
     NMConnection,
+    NMDeviceData,
     NodeMCUDeviceException,
+    newNMConnection,
     read_device_data,
     read_device_info,
     read_device_spec,
-    newNMConnection,
 )
 
 
 class NMDeviceCoordinator(DataUpdateCoordinator[NMDeviceData]):
-    """
-    Basically a typed DataUpdateCoordinator
+    """Basically a typed DataUpdateCoordinator.
 
     It is used to coordinate updates across many sensors (NMEntity)
     via single request.
@@ -37,9 +33,9 @@ class NMDeviceCoordinator(DataUpdateCoordinator[NMDeviceData]):
     conn: NMConnection
 
     # the entry of the device, used to form child entity ids
-    confEntry: ConfigEntry
-    deviceEntry: DeviceEntry
-    deviceInfo: DeviceInfo
+    conf_entry: ConfigEntry
+    device_entry: DeviceEntry
+    device_info: DeviceInfo
 
     # "device info" object as dict_to_obj result of upload of "/info" endpoint
     read_device_info: dict[str, str]
@@ -52,8 +48,7 @@ async def newCoordinator(
     logger: Logger,
     entry: ConfigEntry,
 ) -> NMDeviceCoordinator:
-    """
-    Instantiate new update coordinator for given URI aka. NodeMCU device.
+    """Instantiate new update coordinator for given URI aka. NodeMCU device.
 
     One coordinator instance for single NodeMCU device.
 
@@ -72,8 +67,7 @@ async def newCoordinator(
         # actual update logic, pulling data from the device
         # inline function having "conn" upvalue
         try:
-            d = await read_device_data(conn)
-            return d
+            return await read_device_data(conn)
         except NodeMCUDeviceException as ex:
             raise UpdateFailed(ex) from ex
 
@@ -92,7 +86,7 @@ async def newCoordinator(
     )
     # own class arguments
     c.conn = conn
-    c.confEntry = entry
+    c.conf_entry = entry
     c.read_device_info = device_info
     c.read_device_spec = spec
 

@@ -1,16 +1,17 @@
+"""The module contains the NMBaseEntity class and related functions for NodeMCU sensors."""
+
 from typing import Any, cast
+
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .mediation import update_device_data
-from .utils import deep_get, dict_to_attr, deepdict
+from .utils import deep_get, deepdict, dict_to_attr
 
 
 class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
-    """
-    Representation of a NodeMCU sensor.
+    """Representation of a NodeMCU sensor.
 
     This sensor is updated in coordinated manner i.e. many sensors
     are updated together, with single request to the device.
@@ -25,12 +26,11 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         super().__init__(coordinator)
         self.entity_description = description
 
-        deviceName = f"%s %s" % (
-            coordinator.conn.hostname,
-            coordinator.read_device_info["name"],
+        deviceName = (
+            f"{coordinator.conn.hostname} {coordinator.read_device_info["name"]}"
         )
         self._attr_name = f"{deviceName} {description.name}"
-        self._attr_unique_id = f"{coordinator.confEntry.unique_id} {description.name}"
+        self._attr_unique_id = f"{coordinator.conf_entry.unique_id} {description.name}"
         # self._attr_device_info = {
         #     "name": f"{deviceName} {description.name}",
         #     "via_device": (DOMAIN, coordinator.confEntry.entry_id),
@@ -38,12 +38,11 @@ class NMBaseEntity(CoordinatorEntity[NMDeviceCoordinator], Entity):
         #     "identifiers": coordinator.deviceEntry.identifiers,
         # }
         self._attr_extra_state_attributes = {"hostname": coordinator.conn.hostname}
-        self._attr_device_info = coordinator.deviceInfo
+        self._attr_device_info = coordinator.device_info
 
 
 def update_entity(e: NMBaseEntity) -> None:
-    """
-    Updates an entity after a device async_update()
+    """Update an entity after a device async_update().
 
     It reads data from NMDeviceCoordinator.data and updates
     NMBaseEntity directly.
@@ -58,7 +57,7 @@ def update_entity(e: NMBaseEntity) -> None:
 
 
 def instrument_update(e: NMBaseEntity) -> None:
-    """Setups device update callback for the entity and reads/loads initial values (data)"""
+    """Set up device update callback for the entity and reads/loads initial values (data)."""
 
     # define callback on each coordinated device update to update entity's own properties
     def _updEntityFn():
@@ -71,7 +70,7 @@ def instrument_update(e: NMBaseEntity) -> None:
 
 
 async def send_state(e: NMBaseEntity, payload: dict[str, Any]) -> None:
-    """Sends update request to the device"""
+    """Send update request to the device."""
     await update_device_data(
         e.coordinator.conn, deepdict(e.entity_description.key, payload)
     )

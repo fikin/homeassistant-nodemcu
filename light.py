@@ -1,47 +1,41 @@
 from typing import Any
 
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.light import (
-    LightEntityFeature,
     LightEntity,
     LightEntityDescription,
+    LightEntityFeature,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
 
 
-class NMEntityLight(NMBaseEntity, LightEntity):  # type: ignore
+class NMEntityLight(NMBaseEntity, LightEntity):
     """Representation of a NodeMCU sensor."""
 
     async def _setOnOff(self, flg: bool, params: dict[str, Any]):
-        o = {"is_on": flg}
-        for k, v in params.items():
-            o[k] = v
+        o = {"is_on": flg, **params}
         await send_state(self, o)
 
-    async def async_turn_off(self, **kwargs: Any) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:  # noqa: D102
         await self._setOnOff(False, kwargs)
 
-    async def async_turn_on(self, **kwargs: Any) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:  # noqa: D102
         await self._setOnOff(True, kwargs)
 
 
 def _features_enum(integer_value: int) -> LightEntityFeature:
-    flags = []
-    for flag in LightEntityFeature:
-        if integer_value & flag.value:
-            flags.append(flag)
+    flags = [flag for flag in LightEntityFeature if integer_value & flag.value]
     return flags | LightEntityFeature(0)  # Combine flags into a single IntFlag object
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:
-    desc = LightEntityDescription(**spec)
-    if desc["supported_features"]:
-        desc["supported_features"] = _features_enum(desc["supported_features"])
+    spec2 = {**spec, "supported_features": _features_enum(spec["supported_features"])}
+    desc = LightEntityDescription(**spec2)
     e = NMEntityLight(coordinator, desc)
     instrument_update(e)
     return e

@@ -1,4 +1,5 @@
 """Config flow for nodemcu integration."""
+
 from __future__ import annotations
 
 import logging
@@ -8,19 +9,18 @@ import voluptuous as vol
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResult
 
 from .const import (
+    CONF_APIPATH,
+    CONF_HOST,
+    CONF_PERIOD,
+    CONF_PORT,
+    CONF_PROTOCOL,
+    CONF_PWD,
+    CONF_USR,
     DOMAIN,
     CannotConnect,
     InvalidAuth,
-    CONF_HOST,
-    CONF_PORT,
-    CONF_APIPATH,
-    CONF_PROTOCOL,
-    CONF_USR,
-    CONF_PWD,
-    CONF_PERIOD,
 )
 from .mediation import newNMConnection
 
@@ -82,7 +82,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    ) -> config_entries.ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:

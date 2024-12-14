@@ -1,3 +1,5 @@
+"""The module contains dummy data for testing NodeMCU components in Home Assistant."""
+
 from typing import Final
 
 DummyDeviceInfo: Final = {
@@ -234,11 +236,21 @@ DummyDeviceData: Final = {
         # MODE_SLEEP	Device is prepared for sleep
         # MODE_AUTO	    Device is controlling humidity by itself
         # MODE_BABY	    Device is trying to optimize for babies
-        "available_modes": ["normal", "eco", "away", "boost", "comfort", "home", "sleep", "auto", "baby"],
+        "available_modes": [
+            "normal",
+            "eco",
+            "away",
+            "boost",
+            "comfort",
+            "home",
+            "sleep",
+            "auto",
+            "baby",
+        ],
         #
         "mode": "auto",
         #
         # MODES = 1
         "supported_features": 1,
-    }
+    },
 }

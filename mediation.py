@@ -1,24 +1,25 @@
 """Mediation talking to NodeMCU."""
 
-import json
 import hashlib
-from requests import Session
-from requests.auth import HTTPBasicAuth
-from requests.adapters import HTTPAdapter
+import json
 from typing import Any, Final
+
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.auth import HTTPBasicAuth
 
 from homeassistant.core import HomeAssistant
 
 from .const import (
-    NodeMCUDeviceException,
-    InvalidAuth,
-    CannotConnect,
+    CONF_APIPATH,
     CONF_HOST,
     CONF_PORT,
-    CONF_APIPATH,
     CONF_PROTOCOL,
     CONF_PWD,
     CONF_USR,
+    CannotConnect,
+    InvalidAuth,
+    NodeMCUDeviceException,
 )
 from .test_data import DummyDeviceData, DummyDeviceInfo, DummyDeviceSpec
 
@@ -33,20 +34,17 @@ stubHost: Final = "stub"
 
 # an http client session with retries to ensure unreliable network
 cl = Session()
-cl.mount('http://', HTTPAdapter(max_retries=3))
+cl.mount("http://", HTTPAdapter(max_retries=3))
 
 
 class NMConnection:
-    """
-    Represents NodeMCU device connectivity data and
-    offers read and update methods
-    """
+    """Represent NodeMCU device connectivity data and offers read and update methods."""
 
     hass: HomeAssistant
 
     # connectivity data
     hostname: str
-    urlBase: str
+    url_base: str
 
     # a hashed hostname to be used as hass entity_id (instead of using mac)
     entity_id: str
@@ -65,16 +63,11 @@ NMDeviceData = dict[str, Any]
 
 
 def newNMConnection(hass: HomeAssistant, data: dict[str, Any]) -> NMConnection:
-    """New prepared connection out of URI"""
+    """Create new prepared connection out of URI."""
 
-    baseUrl = f"%s://%s:%d%s" % (
-        data[CONF_PROTOCOL],
-        data[CONF_HOST],
-        data[CONF_PORT],
-        data[CONF_APIPATH],
-    )
+    base_url = f"{data[CONF_PROTOCOL]}://{data[CONF_HOST]}:{data[CONF_PORT]}{data[CONF_APIPATH]}"
     return _newNMConnection(
-        hass, data[CONF_HOST], baseUrl, data.get(CONF_USR), data.get(CONF_PWD)
+        hass, data[CONF_HOST], base_url, data.get(CONF_USR), data.get(CONF_PWD)
     )
 
 
@@ -85,76 +78,73 @@ def _newNMConnection(
     c.hass = hass
 
     c.hostname = hostname
-    c.urlBase = baseUrl
+    c.url_base = baseUrl
     c.headers = {"Content-Type": "application/json"}
     c.auth = None if not usr else HTTPBasicAuth(usr, pwd)
 
-    c.generated_unique_id = hashlib.md5(c.urlBase.encode()).hexdigest()
+    c.generated_unique_id = hashlib.md5(c.url_base.encode()).hexdigest()
     c.entity_id = hashlib.md5(c.hostname.encode()).hexdigest()
 
     return c
 
 
 def _doGetLowLevel(conn: NMConnection, subPath: str) -> dict[str, Any]:
-    """helper running GET against the device"""
-    u = f"%s%s" % (conn.urlBase, subPath)
+    """Run GET against the device."""
+    u = f"{conn.url_base}{subPath}"
     try:
         resp = cl.get(url=u, headers=headers, auth=conn.auth)
         if resp.status_code == 401:
             raise InvalidAuth()
         return resp.json()
     except ConnectionError as ex:
-        raise CannotConnect(ex)
+        raise CannotConnect(ex) from ex
     except ValueError as ex:
-        raise NodeMCUDeviceException("GET", u, ex)
+        raise NodeMCUDeviceException("GET", u, ex) from ex
 
 
 async def _doGet(conn: NMConnection, subPath: str) -> dict[str, Any]:
-    """helper running GET against the device"""
+    """Run GET against the device."""
     return await conn.hass.async_add_executor_job(_doGetLowLevel, conn, subPath)
 
 
 def _doPost(conn: NMConnection, data: dict[str, Any]) -> None:
-    u = f"%s%s" % (conn.urlBase, "/data")
+    u = f"{conn.url_base}/data"
     try:
         resp = cl.post(url=u, headers=headers, auth=conn.auth, data=json.dumps(data))
         if resp.status_code == 401:
             raise InvalidAuth()
-        elif resp.status_code != 200:
-            raise ValueError(
-                f"NodeMCU responsed with %d:%s" % (resp.status_code, resp.text)
-            )
+        if resp.status_code != 200:
+            ex = ValueError(f"NodeMCU responsed with {resp.status_code}:{resp.text}")
+            raise NodeMCUDeviceException("POST", u, data, ex)
     except ConnectionError as ex:
-        raise CannotConnect(ex)
-    except ValueError as ex:
-        raise NodeMCUDeviceException("POST", u, data, ex)
+        raise CannotConnect(ex) from ex
 
 
 async def read_device_data(conn: NMConnection) -> NMDeviceData:
-    """GET /data endpoint"""
+    """Read via GET /data endpoint."""
     if conn.hostname == stubHost:
         return DummyDeviceData
     return await _doGet(conn, "/data")
 
 
 async def read_device_info(conn: NMConnection) -> dict[str, str]:
-    """GET /info endpoint"""
+    """Read GET /info endpoint."""
     if conn.hostname == stubHost:
         return DummyDeviceInfo
     return await _doGet(conn, "/info")
 
 
 async def read_device_spec(conn: NMConnection) -> dict[str, Any]:
-    """GET /spec endpoint"""
+    """Read GET /spec endpoint."""
     if conn.hostname == stubHost:
         return DummyDeviceSpec
     return await _doGet(conn, "/spec")
 
 
 async def update_device_data(conn: NMConnection, data: dict[str, Any]) -> None:
-    """POST the data to /data endpoint"""
+    """Write POST data to /data endpoint."""
     if conn.hostname == stubHost:
-        # print here your data or simply put a breakpoint
-        print(f'[NodeMCU stub] : POST /api/ha/data : %s' % json.dumps(data))
-        return
+        # stub hostname, print here your data or simply put a breakpoint
+        # print(f"[NodeMCU stub] : POST /api/ha/data : {json.dumps(data)}")
+        return None
     return await conn.hass.async_add_executor_job(_doPost, conn, data)

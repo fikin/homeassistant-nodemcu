@@ -1,26 +1,25 @@
 from typing import Any
 
-from homeassistant.core import HomeAssistant
+from homeassistant.components.button import ButtonEntity, ButtonEntityDescription
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.button import (
-    ButtonEntity,
-    ButtonEntityDescription,
-)
 
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, send_state
 
 
-class NMEntityButton(NMBaseEntity, ButtonEntity):  # type: ignore
+class NMEntityButton(NMBaseEntity, ButtonEntity):
     """Representation of a NodeMCU sensor."""
 
-    async def async_press(self) -> None:
+    async def async_press(self) -> None:  # noqa: D102
         await send_state(self, {"action": str(self.device_class)})
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityButton:
+def _newEntity(
+    coordinator: NMDeviceCoordinator, spec: dict[str, Any]
+) -> NMEntityButton:
     desc = ButtonEntityDescription(**spec)
     return NMEntityButton(coordinator, desc)
 

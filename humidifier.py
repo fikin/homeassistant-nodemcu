@@ -1,54 +1,49 @@
+"""The module contains the implementation of the NodeMCU humidifier component."""
+
 from typing import Any
 
-from homeassistant.core import HomeAssistant
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.components.humidifier import (
-    HumidifierEntityFeature,
     HumidifierEntity,
     HumidifierEntityDescription,
-    ATTR_HUMIDITY,
-    ATTR_CURRENT_HUMIDITY,
-    ATTR_MAX_HUMIDITY,
-    ATTR_MIN_HUMIDITY,
-    ATTR_MODE,
-    ATTR_AVAILABLE_MODES,
-
+    HumidifierEntityFeature,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .entity import NMBaseEntity, instrument_update, send_state
 
 
-class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):  # type: ignore
+class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):
     """Representation of a NodeMCU sensor."""
 
-    async def async_set_humidity(self, humidity: int) -> None:
+    async def async_set_humidity(self, humidity: int) -> None:  # noqa: D102
         await send_state(self, {"target_humidity": humidity})
 
-    async def async_set_mode(self, mode: str) -> None:
+    async def async_set_mode(self, mode: str) -> None:  # noqa: D102
         await send_state(self, {"mode": mode})
 
-    async def async_turn_on(self) -> None:
+    async def async_turn_on(self, **kwargs: Any) -> None:  # noqa: D102
         await send_state(self, {"is_on": True})
 
-    async def async_turn_off(self) -> None:
+    async def async_turn_off(self, **kwargs: Any) -> None:  # noqa: D102
         await send_state(self, {"is_on": False})
 
 
 def _features_enum(integer_value: int) -> HumidifierEntityFeature:
-    flags = []
-    for flag in HumidifierEntityFeature:
-        if integer_value & flag.value:
-            flags.append(flag)
-    return flags | HumidifierEntityFeature(0)  # Combine flags into a single IntFlag object
+    flags = [flag for flag in HumidifierEntityFeature if integer_value & flag.value]
+    return flags | HumidifierEntityFeature(
+        0
+    )  # Combine flags into a single IntFlag object
 
 
-def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityHumidifier:
-    desc = HumidifierEntityDescription(**spec)
-    if desc["supported_features"]:
-        desc["supported_features"] = _features_enum(desc["supported_features"])
+def _newEntity(
+    coordinator: NMDeviceCoordinator, spec: dict[str, Any]
+) -> NMEntityHumidifier:
+    spec2 = {**spec, "supported_features": _features_enum(spec["supported_features"])}
+    desc = HumidifierEntityDescription(**spec2)
     e = NMEntityHumidifier(coordinator, desc)
     instrument_update(e)
     return e
