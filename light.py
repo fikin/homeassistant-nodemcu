@@ -29,12 +29,10 @@ class NMEntityLight(NMBaseEntity, LightEntity):
         await self._setOnOff(True, kwargs)
 
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
-        return {
-            **tbl,
-            "supported_features": int_to_enum(
-                tbl["supported_features"], LightEntityFeature
-            ),
-        }
+        if tbl.get("supported_features") is None:
+            return tbl
+        e = int_to_enum(tbl["supported_features"], LightEntityFeature)
+        return {**tbl, "supported_features": e}
 
 
 def _newEntity(coordinator: NMDeviceCoordinator, spec: dict[str, Any]) -> NMEntityLight:

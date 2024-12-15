@@ -33,12 +33,10 @@ class NMEntityHumidifier(NMBaseEntity, HumidifierEntity):
         await send_state(self, {"is_on": False})
 
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
-        return {
-            **tbl,
-            "supported_features": int_to_enum(
-                tbl["supported_features"], HumidifierEntityFeature
-            ),
-        }
+        if tbl.get("supported_features") is None:
+            return tbl
+        e = int_to_enum(tbl["supported_features"], HumidifierEntityFeature)
+        return {**tbl, "supported_features": e}
 
 
 def _newEntity(

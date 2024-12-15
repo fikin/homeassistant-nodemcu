@@ -9,16 +9,14 @@ T = TypeVar("T")
 ET = TypeVar("ET", bound=IntFlag)
 
 
-def dict_to_attr(o: T, d: dict[str, Any]) -> T:  # noqa: D103
-    for k, v in d.items():
-        k = f"_attr_{k}"
-        try:
-            if isinstance(o.__getattribute__(k), tuple):
+def dict_to_attr(obj: T, data: dict[str, Any]) -> T:  # noqa: D103
+    for k, v in data.items():
+        attr_name = f"_attr_{k}"
+        if hasattr(obj, attr_name):
+            if isinstance(getattr(obj, attr_name), tuple):
                 v = {"__tuple__": True, "items": v}
-        except AttributeError as ex:
-            logging.warning("NodeMCU : dict_to_attr : %s", ex)
-        setattr(o, k, v)
-    return o
+        setattr(obj, k, v)
+    return obj
 
 
 def deep_get(d: dict[str, Any], key: str, default: Any | None = None) -> Any | None:

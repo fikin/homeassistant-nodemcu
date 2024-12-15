@@ -63,12 +63,11 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):
         await send_state(self, {"hvac_mode": "off"})
 
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
-        return {
-            **tbl,
-            "supported_features": int_to_enum(
-                tbl["supported_features"], ClimateEntityFeature
-            ),
-        }
+        # force on/off as these are coded for all types
+        e = ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
+        if tbl.get("supported_features") is None:
+            e = e | int_to_enum(tbl["supported_features"], ClimateEntityFeature)
+        return {**tbl, "supported_features": e}
 
 
 def _newEntity(
