@@ -1,3 +1,5 @@
+"""The module contains the NMEntityClimate class and related functions for integrating NodeMCU climate devices with Home Assistant."""
+
 from typing import Any
 
 from homeassistant.components.climate import (
@@ -65,7 +67,7 @@ class NMEntityClimate(NMBaseEntity, ClimateEntity):
     def on_update(self, tbl: dict[str, Any]) -> dict[str, Any]:  # noqa: D102
         # force on/off as these are coded for all types
         e = ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TURN_OFF
-        if tbl.get("supported_features") is None:
+        if tbl.get("supported_features"):
             e = e | int_to_enum(tbl["supported_features"], ClimateEntityFeature)
         return {**tbl, "supported_features": e}
 

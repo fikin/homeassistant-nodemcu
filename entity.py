@@ -2,10 +2,10 @@
 
 from typing import Any, cast
 
-from homeassistant.core import DOMAIN
 from homeassistant.helpers.entity import Entity, EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .const import DOMAIN
 from .coordinator import NMDeviceCoordinator
 from .mediation import update_device_data
 from .utils import deep_get, deepdict, dict_to_attr

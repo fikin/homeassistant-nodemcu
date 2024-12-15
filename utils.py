@@ -1,7 +1,6 @@
 """The module provides utility functions for NodeMCU components."""
 
 from enum import IntFlag
-import logging
 from typing import Any, TypeVar
 
 T = TypeVar("T")

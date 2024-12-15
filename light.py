@@ -1,3 +1,5 @@
+"""The module contains the NMEntityLight class and related functions for NodeMCU light integration."""
+
 from typing import Any
 
 from homeassistant.components.light import (
